@@ -5,22 +5,44 @@ function init() {
     game.start();
 }
 
-var imageRepository = new function() {
+var tiled;
+$.getJSON("assets/data.json", function(json) {
+   tiled = json;
+});
+
+var assetRepository = new function() {
   this.tileset = new Image();
-  var numImages = 1;
-  var numLoaded = 0;
+  var numAssets = 2;
+  var numAssetsLoaded = 0;
+
   function imageLoaded(){
-    numLoaded++;
-    if(numLoaded === numImages) {
+    numAssetsLoaded++;
+    if(numAssetsLoaded === numAssets) {
       window.init();
+      init();
     }
   }
+
   this.tileset.onload = function(){
     imageLoaded();
   }
   this.tileset.src = "assets/lost_garden_tileset.png";
 
+  // WHY NO WORK??
+  var tilemap;
+  getJson = $.getJSON("assets/data.json", function(json) {
+    tilemap = json;
+  });
+
+  getJson.success(function(response){
+      numAssetsLoaded++;
+      if(numAssetsLoaded === numAssets) {
+        window.init();
+      }
+  });
+
 }
+
 
 function Drawable(){
   this.init = function(canvas){
@@ -33,34 +55,45 @@ function Drawable(){
 }
 
 function Tileset() {
-  var layers = [];
-  layers[layers.length] = [
-   [0,0,0,0,0,0,0,0],
-   [0,0,0,0,0,0,0,0],
-   [0,0,9,9,9,0,0,0],
-   [0,0,9,9,9,0,0,0],
-   [0,0,9,9,9,0,0,0],
-   [0,0,0,0,0,0,0,0],
-  ];
+
   var tileSize = 128;     // The size of a tile (128x128)
   var rowTileCount = 6;   // The number of tiles in a row of our background
   var colTileCount = 8;   // The number of tiles in a column of our background
   var imageNumTiles = 25;  // The number of tiles per row in the tileset image
+  
   this.draw = function(){
-    for (var l = 0; l < layers.length; l++){
+    for (var l = 0; l < tiled["layers"].length; l++){
       for (var r = 0; r < rowTileCount; r++){
         for (var c = 0; c < colTileCount; c++){
-          var tile = layers[ l ][ r ][ c ] & 0x0FFFFFFF;
+          var tile = (tiled["layers"][l]["data"][r * colTileCount + c]-1) & 0x0FFFFFFF;
+          var rotation = (tiled["layers"][l]["data"][r * colTileCount + c]-1) & 0xF0000000;
+          var angle = 0;
+
+          if((rotation ^ 0xA0000000)==0)
+            angle = 90;
+          
+          if((rotation ^ 0xC0000000)==0)
+            angle = 180;
+
+          if((rotation ^ 0x60000000)==0)
+            angle = 270;
+          
           var tileRow = Math.floor(tile / imageNumTiles);
           var tileCol = Math.floor(tile % imageNumTiles);
-          this.context.drawImage(imageRepository.tileset, 
-                                (tileCol * tileSize), (tileRow * tileSize), tileSize, tileSize, 
-                                (c * tileSize), (r * tileSize), tileSize, tileSize);
+
+          this.context.save(); 
+          this.context.translate(c*tileSize, r*tileSize);
+          this.context.rotate(angle * Math.PI / 180);
+          this.context.drawImage(assetRepository.tileset, 
+                                 tileCol * tileSize, tileRow * tileSize, tileSize, tileSize,
+                                 -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+          this.context.restore();
+
         }
       }
     }
-
   };
+
 }
 Tileset.prototype = new Drawable();
 
