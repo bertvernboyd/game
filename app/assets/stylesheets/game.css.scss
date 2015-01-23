@@ -2,6 +2,17 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+canvas{
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: transparent;
+}
+
 #tile_canvas{
   z-index: -1;
+}
+
+#entity_canvas{
+  z-index: 0;
 }

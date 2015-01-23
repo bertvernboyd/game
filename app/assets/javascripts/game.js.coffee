@@ -3,11 +3,14 @@ class Game
     canvas = $("#tile_canvas").get(0)
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
-    @tilemap = new Tilemap(1024, 768, imagemap, datamap)
+    @tilemap = new Tilemap(canvas.width, canvas.height, imagemap, datamap)
     @tilemap.draw(canvas)
 
   update: -> 
-    console.log "speed"
+    console.log "up" if KEY_STATUS.up
+    console.log "down" if KEY_STATUS.down
+    console.log "left" if KEY_STATUS.left
+    console.log "right" if KEY_STATUS.right
 
 class Drawable
   constructor: (w, h) ->
@@ -86,3 +89,26 @@ window.requestAnimFrame = (->
     window.setTimeout callback, 1000 / 60
     return
 )()
+
+KEY_CODES =
+  32: "space"
+  37: "left"
+  38: "up"
+  39: "right"
+
+KEY_STATUS = keyDown: false
+for code of KEY_CODES
+  KEY_STATUS[KEY_CODES[code]] = false
+$(window).keydown((e) ->
+  KEY_STATUS.keyDown = true
+  if KEY_CODES[e.keyCode]
+    e.preventDefault()
+    KEY_STATUS[KEY_CODES[e.keyCode]] = true
+  return
+).keyup (e) ->
+  KEY_STATUS.keyDown = false
+  if KEY_CODES[e.keyCode]
+    e.preventDefault()
+    KEY_STATUS[KEY_CODES[e.keyCode]] = false
+  return
+
