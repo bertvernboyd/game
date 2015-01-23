@@ -1,16 +1,40 @@
 class Game
   constructor: ->
-    canvas = $("#tile_canvas").get(0)
+    tile_canvas = $("#tile_canvas").get(0)
+    entity_canvas = $("#entity_canvas").get(0)
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
-    @tilemap = new Tilemap(canvas.width, canvas.height, imagemap, datamap)
-    @tilemap.draw(canvas)
+    @tilemap = new Tilemap(tile_canvas.width, tile_canvas.height, imagemap, datamap)
+    @entity = new Entity(128, 128, 0, 0)
+    @dirty_rects = []
+    @dirty_rects[@dirty_rects.length] = new Rect(@entity.x, @entity.y, @entity.w, @entity.h)   
+    console.log @dirty_rects[@dirty_rects.length-1]
+ 
+    #------------PAINT------------------
+    @tilemap.draw(tile_canvas, 0, 0)
+    @entity.draw(entity_canvas, @entity.x, @entity.y)
 
-  update: -> 
-    console.log "up" if KEY_STATUS.up
-    console.log "down" if KEY_STATUS.down
-    console.log "left" if KEY_STATUS.left
-    console.log "right" if KEY_STATUS.right
+  update: ->
+    for dirty_rect in @dirty_rects
+      entity_canvas.getContext('2d').clearRect(dirty_rect.x, 
+                                               dirty_rect.y,
+                                               dirty_rect.width,
+                                               dirty_rect.height)
+    
+    
+    @dirty_rects.pop() while @dirty_rects.length > 0   
+ 
+    s = 10
+    @entity.x+=s if KEY_STATUS.right
+    @entity.x-=s if KEY_STATUS.left
+    @entity.y+=s if KEY_STATUS.down
+    @entity.y-=10 if KEY_STATUS.up
+
+    @entity.draw(entity_canvas, @entity.x, @entity.y)
+    @dirty_rects[@dirty_rects.length] = new Rect(@entity.x, @entity.y, @entity.w, @entity.h)
+    
+    console.log "speed test"
+
 
 class Drawable
   constructor: (w, h) ->
@@ -18,13 +42,21 @@ class Drawable
     @canvas.width = w
     @canvas.height = h
     
-  draw: (canvas) -> 
-    canvas.getContext('2d').drawImage(@canvas, 0, 0)
+  draw: (canvas, x, y) -> 
+    canvas.getContext('2d').drawImage(@canvas, x, y)
+
+class Entity extends Drawable
+  constructor: (@w, @h, @x, @y) ->
+    super
+    ctx = @canvas.getContext('2d')
+    ctx.rect(0, 0, w, h)
+    ctx.fillStyle="red"
+    ctx.fill()
 
 class Tilemap extends Drawable
   constructor: (w, h, @imagemap, @datamap) ->
     super
-    ctx = @canvas.getContext('2d');
+    ctx = @canvas.getContext('2d')
     for l in @datamap.layers
       for r in [0...@datamap.height]
         for c in [0...@datamap.width]
@@ -49,6 +81,9 @@ class Tilemap extends Drawable
                         @datamap.tilewidth, 
                         @datamap.tileheight)
           ctx.restore()
+
+class Rect
+  constructor: (@x, @y, @width, @height) ->
 
 class AssetRepository
   @load: ->
@@ -91,10 +126,10 @@ window.requestAnimFrame = (->
 )()
 
 KEY_CODES =
-  32: "space"
   37: "left"
   38: "up"
   39: "right"
+  40: "down"
 
 KEY_STATUS = keyDown: false
 for code of KEY_CODES
