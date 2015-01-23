@@ -1,6 +1,6 @@
 class Game
   constructor: ->
-    canvas = $("#main").get(0)
+    canvas = $("#tile_canvas").get(0)
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(1024, 768, imagemap, datamap)
