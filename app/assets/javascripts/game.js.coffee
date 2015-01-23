@@ -3,22 +3,24 @@ class Game
     canvas = $("#main").get(0)
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
-    @tilemap = new Tilemap(canvas, imagemap, datamap)
+    @tilemap = new Tilemap(1024, 768, imagemap, datamap)
+    @tilemap.draw(canvas)
 
   update: -> 
-  draw: ->
     console.log "speed"
-    #@tilemap.draw()
 
 class Drawable
-  constructor: (@canvas) ->
-  draw: ->
+  constructor: (w, h) ->
+    @canvas = document.createElement('canvas')
+    @canvas.width = w
+    @canvas.height = h
+    
+  draw: (canvas) -> 
+    canvas.getContext('2d').drawImage(@canvas, 0, 0)
 
 class Tilemap extends Drawable
-  constructor: (@canvas, @imagemap, @datamap) ->
+  constructor: (w, h, @imagemap, @datamap) ->
     super
-    
-  draw: ->
     ctx = @canvas.getContext('2d');
     for l in @datamap.layers
       for r in [0...@datamap.height]
@@ -35,13 +37,15 @@ class Tilemap extends Drawable
           ctx.translate(c*@datamap.tilewidth, r*@datamap.tileheight)
           ctx.rotate(angle)
           ctx.drawImage(@imagemap, 
-                        tilecol * @datamap.tilewidth, tilerow * @datamap.tileheight, @datamap.tilewidth, @datamap.tileheight, 
-                        -@datamap.tilewidth / 2, -@datamap.tileheight / 2, @datamap.tilewidth, @datamap.tileheight)
+                        tilecol * @datamap.tilewidth, 
+                        tilerow * @datamap.tileheight, 
+                        @datamap.tilewidth, 
+                        @datamap.tileheight, 
+                        -@datamap.tilewidth / 2, 
+                        -@datamap.tileheight / 2, 
+                        @datamap.tilewidth, 
+                        @datamap.tileheight)
           ctx.restore()
-
-           
-    
-  
 
 class AssetRepository
   @load: ->
@@ -76,7 +80,6 @@ init = ->
 animate = ->
   requestAnimFrame(animate)
   @game.update()
-  @game.draw()
 
 window.requestAnimFrame = (->
   window.requestAnimationFrame or window.webkitRequestAnimationFrame or window.mozRequestAnimationFrame or window.oRequestAnimationFrame or window.msRequestAnimationFrame or (callback, element) ->
