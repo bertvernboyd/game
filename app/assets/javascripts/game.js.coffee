@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @entity = new Entity(128, 128, 0, 0)
+    @entity = new Entity(32, 32, 0, 0)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = new Rect(@entity.x, @entity.y, @entity.w, @entity.h)   
     console.log @dirty_rects[@dirty_rects.length-1]
@@ -75,9 +75,9 @@ class Tilemap extends Drawable
                         tilecol * @datamap.tilewidth, 
                         tilerow * @datamap.tileheight, 
                         @datamap.tilewidth, 
-                        @datamap.tileheight, 
-                        -@datamap.tilewidth / 2, 
-                        -@datamap.tileheight / 2, 
+                        @datamap.tileheight,
+                        0,
+                        0, 
                         @datamap.tilewidth, 
                         @datamap.tileheight)
           ctx.restore()
@@ -98,9 +98,9 @@ class AssetRepository
     @imagemap = new Image()
     @imagemap.onload = ->
       loaded()
-    @imagemap.src = "assets/lost_garden_tileset.png"
+    @imagemap.src = "assets/terrain_tileset.png"
 
-    $.getJSON("assets/data.json", (json) =>
+    $.getJSON("assets/512.json", (json) =>
       @datamap = json
     ).done(->
       loaded()
