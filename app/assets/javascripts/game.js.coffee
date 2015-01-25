@@ -4,22 +4,20 @@ class Game
     entity_canvas = $("#entity_canvas").get(0)
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
-    @tilemap = new Tilemap(tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(32, 32, 0, 0)
+    @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
+    @player = new Player(0, 0, 32, 32)
     @dirty_rects = []
-    @dirty_rects[@dirty_rects.length] = new Rect(@player.x, @player.y, @player.w, @player.h)   
-    console.log @dirty_rects[@dirty_rects.length-1]
+    @dirty_rects[@dirty_rects.length] = @player.clone_bounds()   
  
     #------------PAINT------------------
-    @tilemap.draw(tile_canvas, 0, 0)
-    @player.draw(entity_canvas, @player.x, @player.y)
+    @tilemap.draw(tile_canvas)
 
   update: ->
     for dirty_rect in @dirty_rects
       entity_canvas.getContext('2d').clearRect(dirty_rect.x, 
                                                dirty_rect.y,
-                                               dirty_rect.width,
-                                               dirty_rect.height)
+                                               dirty_rect.w,
+                                               dirty_rect.h)
     
     
     @dirty_rects.pop() while @dirty_rects.length > 0   
@@ -27,28 +25,35 @@ class Game
 
     @player.update()
 
-    @player.draw(entity_canvas, @player.x, @player.y)
-    @dirty_rects[@dirty_rects.length] = new Rect(@player.x, @player.y, @player.w, @player.h)
+    @player.draw(entity_canvas)
+    @dirty_rects[@dirty_rects.length] = @player.clone_bounds()
     
     console.log "speed test"
 
 
-class Drawable
-  constructor: (w, h) ->
-    @canvas = document.createElement('canvas')
-    @canvas.width = w
-    @canvas.height = h
+class Rectangle
+  constructor: (@x, @y, @w, @h) ->
+  clone_bounds: ->
+    new Rectangle(@x, @y, @w, @h)
     
-  draw: (canvas, x, y) -> 
-    canvas.getContext('2d').drawImage(@canvas, x, y)
+
+class Drawable extends Rectangle
+  constructor: (x, y, w, h) ->
+    super
+    @canvas = document.createElement('canvas')
+    @canvas.width = @w
+    @canvas.height = @h
+    
+  draw: (canvas) -> 
+    canvas.getContext('2d').drawImage(@canvas, @x, @y)
 
 class Entity extends Drawable
-  constructor: (@w, @h, @x, @y) ->
+  constructor: (x, y, w, h) ->
     super
   update: ->
 
 class Player extends Entity
-  constructor: (w, h, x, y) ->
+  constructor: (x, y, w, h) ->
     super
     ctx = @canvas.getContext('2d')
     ctx.rect(0, 0, w, h)
@@ -63,7 +68,8 @@ class Player extends Entity
 
 
 class Tilemap extends Drawable
-  constructor: (w, h, @imagemap, @datamap) ->
+  constructor: (x, y, w, h, @imagemap, @datamap) ->
+    # do something with @x and @y
     super
     ctx = @canvas.getContext('2d')
     for l in @datamap.layers
@@ -91,8 +97,6 @@ class Tilemap extends Drawable
                         @datamap.tileheight)
           ctx.restore()
 
-class Rect
-  constructor: (@x, @y, @width, @height) ->
 
 class AssetRepository
   @load: ->
