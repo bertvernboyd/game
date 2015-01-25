@@ -5,14 +5,14 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @entity = new Entity(32, 32, 0, 0)
+    @player = new Player(32, 32, 0, 0)
     @dirty_rects = []
-    @dirty_rects[@dirty_rects.length] = new Rect(@entity.x, @entity.y, @entity.w, @entity.h)   
+    @dirty_rects[@dirty_rects.length] = new Rect(@player.x, @player.y, @player.w, @player.h)   
     console.log @dirty_rects[@dirty_rects.length-1]
  
     #------------PAINT------------------
     @tilemap.draw(tile_canvas, 0, 0)
-    @entity.draw(entity_canvas, @entity.x, @entity.y)
+    @player.draw(entity_canvas, @player.x, @player.y)
 
   update: ->
     for dirty_rect in @dirty_rects
@@ -25,13 +25,13 @@ class Game
     @dirty_rects.pop() while @dirty_rects.length > 0   
  
     s = 10
-    @entity.x+=s if KEY_STATUS.right
-    @entity.x-=s if KEY_STATUS.left
-    @entity.y+=s if KEY_STATUS.down
-    @entity.y-=10 if KEY_STATUS.up
+    @player.x+=s if KEY_STATUS.right
+    @player.x-=s if KEY_STATUS.left
+    @player.y+=s if KEY_STATUS.down
+    @player.y-=10 if KEY_STATUS.up
 
-    @entity.draw(entity_canvas, @entity.x, @entity.y)
-    @dirty_rects[@dirty_rects.length] = new Rect(@entity.x, @entity.y, @entity.w, @entity.h)
+    @player.draw(entity_canvas, @player.x, @player.y)
+    @dirty_rects[@dirty_rects.length] = new Rect(@player.x, @player.y, @player.w, @player.h)
     
     console.log "speed test"
 
@@ -48,10 +48,18 @@ class Drawable
 class Entity extends Drawable
   constructor: (@w, @h, @x, @y) ->
     super
+  update: ->
+
+class Player extends Entity
+  constructor: (w, h, x, y) ->
+    super
     ctx = @canvas.getContext('2d')
     ctx.rect(0, 0, w, h)
     ctx.fillStyle="red"
     ctx.fill()
+  update: ->
+    
+
 
 class Tilemap extends Drawable
   constructor: (w, h, @imagemap, @datamap) ->
