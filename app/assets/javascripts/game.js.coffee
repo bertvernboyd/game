@@ -24,11 +24,8 @@ class Game
     
     @dirty_rects.pop() while @dirty_rects.length > 0   
  
-    s = 10
-    @player.x+=s if KEY_STATUS.right
-    @player.x-=s if KEY_STATUS.left
-    @player.y+=s if KEY_STATUS.down
-    @player.y-=10 if KEY_STATUS.up
+
+    @player.update()
 
     @player.draw(entity_canvas, @player.x, @player.y)
     @dirty_rects[@dirty_rects.length] = new Rect(@player.x, @player.y, @player.w, @player.h)
@@ -58,7 +55,11 @@ class Player extends Entity
     ctx.fillStyle="red"
     ctx.fill()
   update: ->
-    
+    s = 10
+    @x+=s if KEY_STATUS.right
+    @x-=s if KEY_STATUS.left
+    @y+=s if KEY_STATUS.down
+    @y-=s if KEY_STATUS.up
 
 
 class Tilemap extends Drawable
@@ -102,14 +103,13 @@ class AssetRepository
       numLoaded++
       if numLoaded == numAssets
         init()
-    
-    @imagemap = new Image()
-    @imagemap.onload = ->
-      loaded()
-    @imagemap.src = "assets/terrain_tileset.png"
 
     $.getJSON("assets/512.json", (json) =>
       @datamap = json
+      @imagemap = new Image()
+      @imagemap.onload = ->
+        loaded()
+      @imagemap.src = "assets/#{@datamap.tilesets[0].name}.png"
     ).done(->
       loaded()
     )
