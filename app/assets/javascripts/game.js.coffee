@@ -43,6 +43,7 @@ class Drawable extends Rectangle
     @canvas = document.createElement('canvas')
     @canvas.width = @w
     @canvas.height = @h
+    @ctx = @canvas.getContext('2d')
     
   draw: (canvas) -> 
     canvas.getContext('2d').drawImage(@canvas, @x, @y)
@@ -55,23 +56,36 @@ class Entity extends Drawable
 class Player extends Entity
   constructor: (x, y, w, h) ->
     super
-    ctx = @canvas.getContext('2d')
-    ctx.rect(0, 0, w, h)
-    ctx.fillStyle="red"
-    ctx.fill()
+    @ctx.drawImage(AssetRepository.heroes_image,2*@w,0,32,32,0,0,32,32)
+    @tick = 0
   update: ->
-    s = 10
-    @x+=s if KEY_STATUS.right
-    @x-=s if KEY_STATUS.left
-    @y+=s if KEY_STATUS.down
-    @y-=s if KEY_STATUS.up
-
+    # TODO reduce number of draw calls
+    # TODO make better animation logic
+    @tick++
+    @tick %= 60
+    x_shift = if (@tick < 30) then 0 else @w 
+    s = 1
+    if KEY_STATUS.right
+      @ctx.clearRect(0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.heroes_image,6*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @x+=s
+    else if KEY_STATUS.left
+      @ctx.clearRect(0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.heroes_image,4*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @x-=s
+    else if KEY_STATUS.down
+      @ctx.clearRect(0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.heroes_image,2*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @y+=s
+    else if KEY_STATUS.up
+      @ctx.clearRect(0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.heroes_image,0*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @y-=s
 
 class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
     # do something with @x and @y
     super
-    ctx = @canvas.getContext('2d')
     for l in @datamap.layers
       for r in [0...@datamap.height]
         for c in [0...@datamap.width]
@@ -83,24 +97,24 @@ class Tilemap extends Drawable
           angle = 3*Math.PI / 2 if (rotation ^ 0x60000000)==0
           tilerow = Math.floor(tile / (@imagemap.width / @datamap.tilewidth))
           tilecol = Math.floor(tile % (@imagemap.width / @datamap.tilewidth))
-          ctx.save()
-          ctx.translate(c*@datamap.tilewidth, r*@datamap.tileheight)
-          ctx.rotate(angle)
-          ctx.drawImage(@imagemap, 
-                        tilecol * @datamap.tilewidth, 
-                        tilerow * @datamap.tileheight, 
-                        @datamap.tilewidth, 
-                        @datamap.tileheight,
-                        0,
-                        0, 
-                        @datamap.tilewidth, 
-                        @datamap.tileheight)
-          ctx.restore()
+          @ctx.save()
+          @ctx.translate(c*@datamap.tilewidth, r*@datamap.tileheight)
+          @ctx.rotate(angle)
+          @ctx.drawImage(@imagemap, 
+                         tilecol * @datamap.tilewidth, 
+                         tilerow * @datamap.tileheight, 
+                         @datamap.tilewidth, 
+                         @datamap.tileheight,
+                         0,
+                         0, 
+                         @datamap.tilewidth, 
+                         @datamap.tileheight)
+          @ctx.restore()
 
 
 class AssetRepository
   @load: ->
-    numAssets = 2
+    numAssets = 3
     numLoaded = 0    
 
     loaded = ->
@@ -117,6 +131,11 @@ class AssetRepository
     ).done(->
       loaded()
     )
+
+    @heroes_image = new Image()
+    @heroes_image.onload = ->
+      loaded()
+    @heroes_image.src = "assets/heroes.png"
 
 $ ->
   load()
