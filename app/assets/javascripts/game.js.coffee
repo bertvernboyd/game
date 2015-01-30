@@ -62,9 +62,9 @@ class Player extends Entity
     # TODO reduce number of draw calls
     # TODO make better animation logic
     @tick++
-    @tick %= 60
-    x_shift = if (@tick < 30) then 0 else @w 
-    s = 1
+    @tick %= 32
+    x_shift = if (@tick < 16) then 0 else @w 
+    s = 4
     if KEY_STATUS.right
       @ctx.clearRect(0,0,@w,@h)
       @ctx.drawImage(AssetRepository.heroes_image,6*@w+x_shift,0,@w,@h,0,0,@w,@h) 
