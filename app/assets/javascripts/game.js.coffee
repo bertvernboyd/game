@@ -89,8 +89,8 @@ class Tilemap extends Drawable
     for l in @datamap.layers
       for r in [0...@datamap.height]
         for c in [0...@datamap.width]
-          tile = (l["data"][r * @datamap.width + c] - 1) & 0x0FFFFFFF
-          rotation = (l["data"][r * @datamap.width + c] - 1) & 0xF0000000
+          tile = (l.data[r * @datamap.width + c] - 1) & 0x0FFFFFFF
+          rotation = (l.data[r * @datamap.width + c] - 1) & 0xF0000000
           angle = 0
           angle = Math.PI / 2   if (rotation ^ 0xA0000000)==0
           angle = Math.PI       if (rotation ^ 0xC0000000)==0
@@ -127,7 +127,12 @@ class AssetRepository
       @imagemap = new Image()
       @imagemap.onload = ->
         loaded()
-      @imagemap.src = "assets/#{@datamap.tilesets[0].name}.png"
+      
+      pattern = ///\w+[.]\w+$///
+
+      console.log (@datamap.tilesets[0].image.match pattern)[0]
+      
+      @imagemap.src = "assets/#{(@datamap.tilesets[0].image.match pattern)[0]}"
     ).done(->
       loaded()
     )
