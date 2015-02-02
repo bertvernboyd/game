@@ -128,7 +128,7 @@ class Tilemap extends Drawable
 
 class AssetRepository
   @load: ->
-    numAssets = 5
+    numAssets = 4
     numLoaded = 0    
 
     loaded = ->
@@ -150,11 +150,6 @@ class AssetRepository
     ).done(->
       loaded()
     )
-
-    @heroes_image = new Image()
-    @heroes_image.onload = ->
-      loaded()
-    @heroes_image.src = "assets/heroes.png"
 
     @isaac_image = new Image()
     @isaac_image.onload = ->
