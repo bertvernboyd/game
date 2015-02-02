@@ -56,8 +56,6 @@ class Entity extends Drawable
 class Player extends Entity
   constructor: (x, y, w, h) ->
     super
-    @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,@h,0,0,@w,@h)
-    @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,16,0,@w,@h)
     @tick = 0
   update: ->
     # TODO reduce number of draw calls
@@ -69,13 +67,12 @@ class Player extends Entity
     x_shift = Math.floor(@tick/8)*@w
     s = 4
     hoff = 16
+    @ctx.clearRect(0,0,@w,@h)
     if KEY_STATUS.right
-      @ctx.clearRect(0,0,@w,@h)
       @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
       @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @x+=s
     else if KEY_STATUS.left
-      @ctx.clearRect(0,0,@w,@h)
       @ctx.save()
       @ctx.translate(@w,0)
       @ctx.scale(-1,1);
@@ -84,17 +81,20 @@ class Player extends Entity
       @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @x-=s
     else if KEY_STATUS.down
-      @ctx.clearRect(0,0,@w,@h)
       @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
       @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @y+=s
     else if KEY_STATUS.up
       @tick--
       @tick--
-      @ctx.clearRect(0,0,@w,@h)
       @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
       @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @y-=s
+    else
+      @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,@h,0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+
+
 
 class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
