@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(0, 0, 32, 32)
+    @player = new Player(0, 0, 64, 64)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.clone_bounds()   
  
@@ -56,30 +56,44 @@ class Entity extends Drawable
 class Player extends Entity
   constructor: (x, y, w, h) ->
     super
-    @ctx.drawImage(AssetRepository.heroes_image,2*@w,0,32,32,0,0,32,32)
+    @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,@h,0,0,@w,@h)
+    @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,16,0,@w,@h)
     @tick = 0
   update: ->
     # TODO reduce number of draw calls
     # TODO make better animation logic
     @tick++
-    @tick %= 32
-    x_shift = if (@tick < 16) then 0 else @w 
+    @tick %= 80
+    if @tick < 0
+      @tick+=80
+    x_shift = Math.floor(@tick/8)*@w
     s = 4
+    hoff = 16
     if KEY_STATUS.right
       @ctx.clearRect(0,0,@w,@h)
-      @ctx.drawImage(AssetRepository.heroes_image,6*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @x+=s
     else if KEY_STATUS.left
       @ctx.clearRect(0,0,@w,@h)
-      @ctx.drawImage(AssetRepository.heroes_image,4*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.save()
+      @ctx.translate(@w,0)
+      @ctx.scale(-1,1);
+      @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
+      @ctx.restore();
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @x-=s
     else if KEY_STATUS.down
       @ctx.clearRect(0,0,@w,@h)
-      @ctx.drawImage(AssetRepository.heroes_image,2*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @y+=s
     else if KEY_STATUS.up
+      @tick--
+      @tick--
       @ctx.clearRect(0,0,@w,@h)
-      @ctx.drawImage(AssetRepository.heroes_image,0*@w+x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
       @y-=s
 
 class Tilemap extends Drawable
@@ -114,7 +128,7 @@ class Tilemap extends Drawable
 
 class AssetRepository
   @load: ->
-    numAssets = 3
+    numAssets = 5
     numLoaded = 0    
 
     loaded = ->
@@ -141,6 +155,16 @@ class AssetRepository
     @heroes_image.onload = ->
       loaded()
     @heroes_image.src = "assets/heroes.png"
+
+    @isaac_image = new Image()
+    @isaac_image.onload = ->
+      loaded()
+    @isaac_image.src = "assets/isaac.png"
+
+    @hero_image = new Image()
+    @hero_image.onload = ->
+      loaded()
+    @hero_image.src = "assets/hero.png"
 
 $ ->
   load()
