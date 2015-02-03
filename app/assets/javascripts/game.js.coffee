@@ -5,9 +5,9 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(0, 0, 64, 64)
+    @player = new Player(576, 0, 64, 64)
     @dirty_rects = []
-    @dirty_rects[@dirty_rects.length] = @player.clone_bounds()   
+    @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
     #------------PAINT------------------
     @tilemap.draw(tile_canvas)
@@ -26,33 +26,37 @@ class Game
     @player.update()
 
     @player.draw(entity_canvas)
-    @dirty_rects[@dirty_rects.length] = @player.clone_bounds()
-    ## CLONE BOUNDS CREATES A NEW RECT, THIS IS BAD FOR GARBAGE COLLECTION, USE OBJECT POOL  
+    @dirty_rects[@dirty_rects.length] = @player.draw_rect
  
-    console.log "speed test"
+    console.log "loop" 
 
 
 class Rectangle
   constructor: (@x, @y, @w, @h) ->
-  clone_bounds: ->
-    new Rectangle(@x, @y, @w, @h)
     
 
-class Drawable extends Rectangle
-  constructor: (x, y, w, h) ->
-    super
+class Drawable
+  constructor: (@x, @y, @w, @h) ->
     @canvas = document.createElement('canvas')
     @canvas.width = @w
     @canvas.height = @h
     @ctx = @canvas.getContext('2d')
+    @draw_rect = new Rectangle(@x,@y,@w,@h)
     
   draw: (canvas) -> 
     canvas.getContext('2d').drawImage(@canvas, @x, @y)
+ 
+  update: ->
+    @draw_rect.x = @x
+    @draw_rect.y = @y
+    @draw_rect.w = @w
+    @draw_rect.h = @h
 
 class Entity extends Drawable
   constructor: (x, y, w, h) ->
     super
   update: ->
+    super
 
 class Player extends Entity
   constructor: (x, y, w, h) ->
@@ -60,6 +64,7 @@ class Player extends Entity
     @controller = new Controller()
     @tick = 0
   update: ->
+    super
     # TODO reduce number of draw calls
     # TODO make better animation logic
     @controller.update()
@@ -103,7 +108,6 @@ class Controller
     @x-- if KEY_STATUS.left
     @y++ if KEY_STATUS.down
     @y-- if KEY_STATUS.up
-
 
 class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
