@@ -27,7 +27,8 @@ class Game
 
     @player.draw(entity_canvas)
     @dirty_rects[@dirty_rects.length] = @player.clone_bounds()
-    
+    ## CLONE BOUNDS CREATES A NEW RECT, THIS IS BAD FOR GARBAGE COLLECTION, USE OBJECT POOL  
+ 
     console.log "speed test"
 
 
@@ -56,10 +57,12 @@ class Entity extends Drawable
 class Player extends Entity
   constructor: (x, y, w, h) ->
     super
+    @controller = new Controller()
     @tick = 0
   update: ->
     # TODO reduce number of draw calls
     # TODO make better animation logic
+    @controller.update()
     @tick++
     @tick %= 80
     if @tick < 0
@@ -68,32 +71,38 @@ class Player extends Entity
     s = 4
     hoff = 16
     @ctx.clearRect(0,0,@w,@h)
-    if KEY_STATUS.right
-      @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
-      @x+=s
-    else if KEY_STATUS.left
+    if @controller.x != 0
       @ctx.save()
-      @ctx.translate(@w,0)
-      @ctx.scale(-1,1);
+      trans_x = ((1-@controller.x)/2)*@w
+      @ctx.translate(trans_x,0)  # 0 for right, @w for left
+      @ctx.scale(@controller.x,1)
       @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
-      @ctx.restore();
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
-      @x-=s
-    else if KEY_STATUS.down
-      @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
-      @y+=s
-    else if KEY_STATUS.up
-      @tick--
-      @tick--
-      @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h) 
-      @y-=s
-    else
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+      @ctx.restore()
+      @x+=s*@controller.x 
+    if @controller.y != 0
+      if @controller.x == 0
+        x_shift = 9*@w-x_shift if @controller.y == -1
+        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+      @y+=s*@controller.y 
+    if @controller.x == 0 and @controller.y == 0
+      @tick = 0
       @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,@h,0,0,@w,@h)
       @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
 
+class Controller
+  constructor: ->
+  update: ->
+    @x = 0
+    @y = 0
+    @f_x = 0
+    @f_y = 0
+
+    @x++ if KEY_STATUS.right
+    @x-- if KEY_STATUS.left
+    @y++ if KEY_STATUS.down
+    @y-- if KEY_STATUS.up
 
 
 class Tilemap extends Drawable
