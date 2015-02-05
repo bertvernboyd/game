@@ -83,19 +83,19 @@ class Player extends Entity
       @ctx.translate(trans_x,0)  # 0 for right, @w for left
       @ctx.scale(@controller.x,1)
       @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
       @ctx.restore()
       @x+=s*@controller.x 
     if @controller.y != 0
       if @controller.x == 0
         x_shift = 9*@w-x_shift if @controller.y == -1
         @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
       @y+=s*@controller.y 
     if @controller.x == 0 and @controller.y == 0
       @tick = 0
       @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
 
 class Controller
   constructor: ->
@@ -103,12 +103,12 @@ class Controller
     @x = 0
     @y = 0
     @f_x = 0
-    @f_y = 0
+    @f_y = 0 
 
-    @x++ if KEY_STATUS.right
-    @x-- if KEY_STATUS.left
-    @y++ if KEY_STATUS.down
-    @y-- if KEY_STATUS.up
+    @y-- if KEY_STATUS.w
+    @y++ if KEY_STATUS.s
+    @x-- if KEY_STATUS.a
+    @x++ if KEY_STATUS.d
 
 class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
@@ -199,6 +199,10 @@ KEY_CODES =
   38: "up"
   39: "right"
   40: "down"
+  65: "a"
+  68: "d"
+  83: "s"
+  87: "w"
 
 KEY_STATUS = keyDown: false
 for code of KEY_CODES
