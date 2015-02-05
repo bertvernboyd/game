@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(576, 0, 64, 64)
+    @player = new Player(608, 0, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
@@ -74,27 +74,28 @@ class Player extends Entity
       @tick+=80
     x_shift = Math.floor(@tick/8)*@w
     s = 4
-    hoff = 16
+    hoff = 0
+    yoff = 0
     @ctx.clearRect(0,0,@w,@h)
     if @controller.x != 0
       @ctx.save()
       trans_x = ((1-@controller.x)/2)*@w
       @ctx.translate(trans_x,0)  # 0 for right, @w for left
       @ctx.scale(@controller.x,1)
-      @ctx.drawImage(AssetRepository.isaac_image,x_shift,@h,@w,@h,0,0,@w,@h) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+      @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
       @ctx.restore()
       @x+=s*@controller.x 
     if @controller.y != 0
       if @controller.x == 0
         x_shift = 9*@w-x_shift if @controller.y == -1
-        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,@h,0,0,@w,@h) 
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
       @y+=s*@controller.y 
     if @controller.x == 0 and @controller.y == 0
       @tick = 0
-      @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,@h,0,0,@w,@h)
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,hoff,0,@w,@h)
+      @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
+      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,@h,0,0,@w,@h)
 
 class Controller
   constructor: ->
@@ -172,7 +173,7 @@ class AssetRepository
     @hero_image = new Image()
     @hero_image.onload = ->
       loaded()
-    @hero_image.src = "assets/hero.png"
+    @hero_image.src = "assets/hero_32.png"
 
 $ ->
   load()
