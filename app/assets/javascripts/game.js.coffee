@@ -67,6 +67,7 @@ class Player extends Entity
     super
     # TODO reduce number of draw calls
     # TODO make better animation logic
+    
     @controller.update()
     @tick++
     @tick %= 80
@@ -74,28 +75,45 @@ class Player extends Entity
       @tick+=80
     x_shift = Math.floor(@tick/8)*@w
     s = 4
-    hoff = 0
-    yoff = 0
     @ctx.clearRect(0,0,@w,@h)
-    if @controller.x != 0
-      @ctx.save()
-      trans_x = ((1-@controller.x)/2)*@w
-      @ctx.translate(trans_x,0)  # 0 for right, @w for left
-      @ctx.scale(@controller.x,1)
-      @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      @ctx.restore()
-      @x+=s*@controller.x 
-    if @controller.y != 0
-      if @controller.x == 0
-        x_shift = 9*@w-x_shift if @controller.y == -1
+
+    @x += s*@controller.x
+    @y += s*@controller.y
+
+    if @controller.x == 0 and @controller.y == 0
+      @animation_state = "idle"
+    else if @controller.x == 1
+      @animation_state = "walk_right"
+    else if @controller.x == -1
+      @animation_state = "walk_left"
+    else if @controller.y == 1
+      @animation_state = "walk_down"
+    else if @controller.y == -1
+      @animation_state = "walk_up"
+
+    switch @animation_state
+      when "idle"
+        @tick = 0
+        @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
+      when "walk_right"
+        @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
+      when "walk_left"
+        @ctx.save()
+        @ctx.translate(@w, 0)
+        @ctx.scale(-1,1)
+        @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
+        @ctx.restore()
+      when "walk_down"
         @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
         @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      @y+=s*@controller.y 
-    if @controller.x == 0 and @controller.y == 0
-      @tick = 0
-      @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-      @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
+      when "walk_up"
+        x_shift = 9*@w-x_shift 
+        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
+        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
+      else
 
 class Controller
   constructor: ->
