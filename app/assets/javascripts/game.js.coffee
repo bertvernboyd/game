@@ -10,8 +10,8 @@ class Game
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
     #------------PAINT------------------
-    @screen_x = -1
-    @screen_y = -1
+    @map_x = -1
+    @map_y = -1
 
   update: ->
     for dirty_rect in @dirty_rects
@@ -23,11 +23,11 @@ class Game
     
     @dirty_rects.pop() while @dirty_rects.length > 0   
 
-    if @screen_x != @player.x // entity_canvas.width or @screen_y != @player.y // entity_canvas.height
-      @screen_x = @player.x // entity_canvas.width
-      @screen_y = @player.y // entity_canvas.height
+    if @map_x != @player.x // entity_canvas.width or @map_y != @player.y // entity_canvas.height
+      @map_x = @player.x // entity_canvas.width
+      @map_y = @player.y // entity_canvas.height
       
-      @tilemap.draw(tile_canvas, @screen_x, @screen_y)
+      @tilemap.draw(tile_canvas, @map_x, @map_y)
 
     @player.update()
 
