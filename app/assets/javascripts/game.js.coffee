@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(608, 0, 32, 48)
+    @player = new Player(0, 0, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
