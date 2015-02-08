@@ -10,18 +10,24 @@ class Game
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
     #------------PAINT------------------
-    @tilemap.draw(tile_canvas)
+    @screen_x = -1
+    @screen_y = -1
 
   update: ->
     for dirty_rect in @dirty_rects
-      entity_canvas.getContext('2d').clearRect(dirty_rect.x, 
-                                               dirty_rect.y,
+      entity_canvas.getContext('2d').clearRect(dirty_rect.x %% entity_canvas.width, 
+                                               dirty_rect.y %% entity_canvas.height,
                                                dirty_rect.w,
                                                dirty_rect.h)
     
     
     @dirty_rects.pop() while @dirty_rects.length > 0   
- 
+
+    if @screen_x != @player.x // entity_canvas.width or @screen_y != @player.y // entity_canvas.height
+      @screen_x = @player.x // entity_canvas.width
+      @screen_y = @player.y // entity_canvas.height
+      
+      @tilemap.draw(tile_canvas, @screen_x, @screen_y)
 
     @player.update()
 
@@ -44,7 +50,7 @@ class Drawable
     @draw_rect = new Rectangle(@x,@y,@w,@h)
     
   draw: (canvas) -> 
-    canvas.getContext('2d').drawImage(@canvas, @x, @y)
+    canvas.getContext('2d').drawImage(@canvas, @x%%canvas.width, @y%%canvas.height)
  
   update: ->
     @draw_rect.x = @x
@@ -132,11 +138,16 @@ class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
     # do something with @x and @y
     super
+  draw: (canvas, map_x, map_y) ->
+    ntx = @w/@datamap.tilewidth
+    nty = @h/@datamap.tileheight
+    console.log "tiles per col: #{ntx}"
+    console.log "tiles per row: #{nty}"
     for l in @datamap.layers
-      for r in [0...@datamap.height]
-        for c in [0...@datamap.width]
-          tile = (l.data[r * @datamap.width + c] - 1) & 0x0FFFFFFF
-          rotation = (l.data[r * @datamap.width + c] - 1) & 0xF0000000
+      for c in [0...ntx]
+        for r in [0...nty]
+          tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] - 1) & 0x0FFFFFFF
+          rotation = (l.data[(r+map_y*nty) * @datamap.width + c] - 1) & 0xF0000000
           angle = 0
           angle = Math.PI / 2   if (rotation ^ 0xA0000000)==0
           angle = Math.PI       if (rotation ^ 0xC0000000)==0
@@ -156,7 +167,7 @@ class Tilemap extends Drawable
                          @datamap.tilewidth, 
                          @datamap.tileheight)
           @ctx.restore()
-
+    super
 
 class AssetRepository
   @load: ->
