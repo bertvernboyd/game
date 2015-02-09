@@ -8,8 +8,6 @@ class Game
     @player = new Player(0, 0, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
- 
-    #------------PAINT------------------
     @map_x = -1
     @map_y = -1
 
@@ -75,13 +73,18 @@ class Player extends Entity
     # TODO make better animation logic
     
     @controller.update()
+    
     @tick++
     @tick %= 80
     if @tick < 0
       @tick+=80
-    x_shift = Math.floor(@tick/8)*@w
-    s = 4
+    x_shift = Math.floor(@tick/8)*@w # getting animation frame
+    
     @ctx.clearRect(0,0,@w,@h)
+
+    s = 4
+    if @controller.x != 0 and @controller.y != 0
+      s = 4 / Math.sqrt(2)
 
     @x += s*@controller.x
     @y += s*@controller.y
@@ -139,10 +142,8 @@ class Tilemap extends Drawable
     # do something with @x and @y
     super
   draw: (canvas, map_x, map_y) ->
-    ntx = @w/@datamap.tilewidth
-    nty = @h/@datamap.tileheight
-    console.log "tiles per col: #{ntx}"
-    console.log "tiles per row: #{nty}"
+    ntx = @w/@datamap.tilewidth 
+    nty = @h/@datamap.tileheight 
     for l in @datamap.layers
       for c in [0...ntx]
         for r in [0...nty]
