@@ -24,8 +24,11 @@ class Game
     if @map_x != @player.x // entity_canvas.width or @map_y != @player.y // entity_canvas.height
       @map_x = @player.x // entity_canvas.width
       @map_y = @player.y // entity_canvas.height
-      
+
+      ctx = entity_canvas.getContext('2d')
+      console.log ctx
       @tilemap.draw(tile_canvas, @map_x, @map_y)
+      
 
     @player.update()
 
@@ -84,7 +87,7 @@ class Player extends Entity
 
     s = 4
     if @controller.x != 0 and @controller.y != 0
-      s = 4 / Math.sqrt(2)
+      s = s / Math.sqrt(2)
 
     @x += s*@controller.x
     @y += s*@controller.y
@@ -144,7 +147,10 @@ class Tilemap extends Drawable
   draw: (canvas, map_x, map_y) ->
     ntx = @w/@datamap.tilewidth 
     nty = @h/@datamap.tileheight 
+    console.log ntx
+    console.log nty
     for l in @datamap.layers
+      console.log l.name
       for c in [0...ntx]
         for r in [0...nty]
           tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] - 1) & 0x0FFFFFFF
