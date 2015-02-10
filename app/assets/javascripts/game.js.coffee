@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(0, 0, 32, 48)
+    @player = new Player(96,64, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
  
@@ -26,8 +26,8 @@ class Game
     if @map_x != @player.x // entity_canvas.width or @map_y != @player.y // entity_canvas.height
       @map_x = @player.x // entity_canvas.width
       @map_y = @player.y // entity_canvas.height
-      
-      @tilemap.draw(tile_canvas, @map_x, @map_y)
+      @tilemap.update(@map_x, @map_y) 
+      @tilemap.draw(tile_canvas)
 
     @player.update()
 
@@ -137,37 +137,45 @@ class Controller
 class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
     # do something with @x and @y
+    @collisions = []
     super
-  draw: (canvas, map_x, map_y) ->
+  update: (map_x, map_y) ->
     ntx = @w/@datamap.tilewidth
     nty = @h/@datamap.tileheight
-    console.log "tiles per col: #{ntx}"
-    console.log "tiles per row: #{nty}"
     for l in @datamap.layers
-      for c in [0...ntx]
-        for r in [0...nty]
-          tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] - 1) & 0x0FFFFFFF
-          rotation = (l.data[(r+map_y*nty) * @datamap.width + c] - 1) & 0xF0000000
-          angle = 0
-          angle = Math.PI / 2   if (rotation ^ 0xA0000000)==0
-          angle = Math.PI       if (rotation ^ 0xC0000000)==0
-          angle = 3*Math.PI / 2 if (rotation ^ 0x60000000)==0
-          tilerow = Math.floor(tile / (@imagemap.width / @datamap.tilewidth))
-          tilecol = Math.floor(tile % (@imagemap.width / @datamap.tilewidth))
-          @ctx.save()
-          @ctx.translate(c*@datamap.tilewidth, r*@datamap.tileheight)
-          @ctx.rotate(angle)
-          @ctx.drawImage(@imagemap, 
-                         tilecol * @datamap.tilewidth, 
-                         tilerow * @datamap.tileheight, 
-                         @datamap.tilewidth, 
-                         @datamap.tileheight,
-                         0,
-                         0, 
-                         @datamap.tilewidth, 
-                         @datamap.tileheight)
-          @ctx.restore()
-    super
+      if l.name == "collision"
+        @collisions.length = ntx*nty
+        
+        for c in [0...ntx]
+          for r in [0...nty]
+            tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] ) & 0x0FFFFFFF
+            @collisions[r * ntx + c] = tile != 0
+        console.log @collisions.length
+        console.log @collisions[2]
+      else  
+        for c in [0...ntx]
+          for r in [0...nty]
+            tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] - 1) & 0x0FFFFFFF
+            rotation = (l.data[(r+map_y*nty) * @datamap.width + c] - 1) & 0xF0000000
+            angle = 0
+            angle = Math.PI / 2   if (rotation ^ 0xA0000000)==0
+            angle = Math.PI       if (rotation ^ 0xC0000000)==0
+            angle = 3*Math.PI / 2 if (rotation ^ 0x60000000)==0
+            tilerow = Math.floor(tile / (@imagemap.width / @datamap.tilewidth))
+            tilecol = Math.floor(tile % (@imagemap.width / @datamap.tilewidth))
+            @ctx.save()
+            @ctx.translate(c*@datamap.tilewidth, r*@datamap.tileheight)
+            @ctx.rotate(angle)
+            @ctx.drawImage(@imagemap, 
+                           tilecol * @datamap.tilewidth, 
+                           tilerow * @datamap.tileheight, 
+                           @datamap.tilewidth, 
+                           @datamap.tileheight,
+                           0,
+                           0, 
+                           @datamap.tilewidth, 
+                           @datamap.tileheight)
+            @ctx.restore()
 
 class AssetRepository
   @load: ->
