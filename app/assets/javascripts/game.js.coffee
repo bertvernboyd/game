@@ -28,12 +28,10 @@ class Game
       @tilemap.draw(tile_canvas)
 
     @player.update()
+    @tilemap.collision(@player)
 
     @player.draw(entity_canvas)
     @dirty_rects[@dirty_rects.length] = @player.draw_rect
- 
-    console.log "loop" 
-
 
 class Rectangle
   constructor: (@x, @y, @w, @h) ->
@@ -153,8 +151,6 @@ class Tilemap extends Drawable
           for r in [0...nty]
             tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] ) & 0x0FFFFFFF
             @collisions[r * ntx + c] = tile != 0
-        console.log @collisions.length
-        console.log @collisions[2]
       else  
         for c in [0...ntx]
           for r in [0...nty]
@@ -179,6 +175,44 @@ class Tilemap extends Drawable
                            @datamap.tilewidth, 
                            @datamap.tileheight)
             @ctx.restore()
+  collision: (entity) ->
+    ntx = @w/@datamap.tilewidth
+    cmin = entity.x%%@w//@datamap.tilewidth
+    cmax = Math.ceil((entity.x%%@w + entity.w)/@datamap.tilewidth)
+    rmin = entity.y%%@h//@datamap.tileheight
+    rmax = Math.ceil((entity.y%%@h + entity.h)/@datamap.tileheight)
+
+    collision_top = false
+    for c in [(cmin+1)...cmax]
+      collision_top = @collisions[rmin * ntx + c]
+      if collision_top
+        entity.y += 4
+        break
+    console.log "top #{collision_top}"
+
+    collision_bot = false
+    for c in [(cmin+1)...cmax]
+      collision_bot = @collisions[(rmax-1) * ntx + c]
+      if collision_bot
+        entity.y -= 4
+        break
+    console.log "bot #{collision_bot}"
+
+    collision_left = false
+    for r in [(rmin+1)...rmax]
+      collision_left = @collisions[r * ntx + cmin]
+      if collision_left
+        entity.x += 4
+        break
+    console.log "left #{collision_left}"
+
+    collision_right = false
+    for r in [(rmin+1)...rmax]
+      collision_right = @collisions[r * ntx + cmax-1]
+      if collision_right
+        entity.x -= 4
+        break
+    console.log "right #{collision_right}"
 
 class AssetRepository
   @load: ->
