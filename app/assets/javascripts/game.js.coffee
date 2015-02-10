@@ -8,8 +8,6 @@ class Game
     @player = new Player(96,64, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect   
- 
-    #------------PAINT------------------
     @map_x = -1
     @map_y = -1
 
@@ -75,13 +73,18 @@ class Player extends Entity
     # TODO make better animation logic
     
     @controller.update()
+    
     @tick++
     @tick %= 80
     if @tick < 0
       @tick+=80
-    x_shift = Math.floor(@tick/8)*@w
-    s = 4
+    x_shift = Math.floor(@tick/8)*@w # getting animation frame
+    
     @ctx.clearRect(0,0,@w,@h)
+
+    s = 4
+    if @controller.x != 0 and @controller.y != 0
+      s = s / Math.sqrt(2)
 
     @x += s*@controller.x
     @y += s*@controller.y
