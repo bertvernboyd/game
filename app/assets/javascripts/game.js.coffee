@@ -27,15 +27,13 @@ class Game
       @tilemap.update(@map_x, @map_y) 
       @tilemap.draw(tile_canvas)
 
-    @player.update()
-    @tilemap.collision(@player)
+    @player.update(@tilemap)
 
     @player.draw(entity_canvas)
     @dirty_rects[@dirty_rects.length] = @player.draw_rect
 
 class Rectangle
   constructor: (@x, @y, @w, @h) ->
-    
 
 class Drawable
   constructor: (@x, @y, @w, @h) ->
@@ -65,7 +63,7 @@ class Player extends Entity
     super
     @controller = new Controller()
     @tick = 0
-  update: ->
+  update: (tilemap) ->
     super
     # TODO reduce number of draw calls
     # TODO make better animation logic
@@ -84,8 +82,18 @@ class Player extends Entity
     if @controller.x != 0 and @controller.y != 0
       s = s / Math.sqrt(2)
 
-    @x += s*@controller.x
-    @y += s*@controller.y
+    @del_x = s*@controller.x
+    @del_y = s*@controller.y
+
+    @x += @del_x
+    @y += @del_y
+    
+    tilemap_collisions = tilemap.collision(this)
+    console.log tilemap_collisions
+    if "left" in tilemap_collisions || "right" in tilemap_collisions
+      @x -= @del_x
+    if "top" in tilemap_collisions || "bot" in tilemap_collisions
+      @y -= @del_y
 
     if @controller.x == 0 and @controller.y == 0
       @animation_state = "idle"
@@ -120,7 +128,7 @@ class Player extends Entity
         x_shift = 9*@w-x_shift 
         @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
         @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      else
+      else    
 
 class Controller
   constructor: ->
@@ -181,38 +189,37 @@ class Tilemap extends Drawable
     cmax = Math.ceil((entity.x%%@w + entity.w)/@datamap.tilewidth)
     rmin = entity.y%%@h//@datamap.tileheight
     rmax = Math.ceil((entity.y%%@h + entity.h)/@datamap.tileheight)
+    
+    collisions = []
 
     collision_top = false
-    for c in [(cmin+1)...cmax]
+    for c in [(cmin+1)...(cmax-1)]
       collision_top = @collisions[rmin * ntx + c]
       if collision_top
-        entity.y += 4
+        collisions[collisions.length] = "top"
         break
-    console.log "top #{collision_top}"
 
     collision_bot = false
-    for c in [(cmin+1)...cmax]
+    for c in [(cmin+1)...(cmax-1)]
       collision_bot = @collisions[(rmax-1) * ntx + c]
       if collision_bot
-        entity.y -= 4
+        collisions[collisions.length] = "bot"
         break
-    console.log "bot #{collision_bot}"
 
     collision_left = false
-    for r in [(rmin+1)...rmax]
+    for r in [(rmin+1)...(rmax-1)]
       collision_left = @collisions[r * ntx + cmin]
       if collision_left
-        entity.x += 4
+        collisions[collisions.length] = "left"
         break
-    console.log "left #{collision_left}"
 
     collision_right = false
-    for r in [(rmin+1)...rmax]
+    for r in [(rmin+1)...(rmax-1)]
       collision_right = @collisions[r * ntx + cmax-1]
       if collision_right
-        entity.x -= 4
+        collisions[collisions.length] = "right"
         break
-    console.log "right #{collision_right}"
+    collisions
 
 class AssetRepository
   @load: ->
