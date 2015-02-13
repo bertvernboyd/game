@@ -89,7 +89,6 @@ class Player extends Entity
     @y += @del_y
     
     tilemap_collisions = tilemap.collision(this)
-    console.log tilemap_collisions
     if "left" in tilemap_collisions || "right" in tilemap_collisions
       @x -= @del_x
     if "top" in tilemap_collisions || "bot" in tilemap_collisions
@@ -147,19 +146,18 @@ class Tilemap extends Drawable
   constructor: (x, y, w, h, @imagemap, @datamap) ->
     # do something with @x and @y
     @collisions = []
+    @collisions.length = @datamap.width * @datamap.height
+    for l in @datamap.layers
+      if l.name == "collision"
+        for c in [0...@datamap.width]
+          for r in [0...@datamap.height]
+            @collisions[r * @datamap.width + c] = l.data[r * @datamap.width + c] != 0
     super
   update: (map_x, map_y) ->
     ntx = @w/@datamap.tilewidth
     nty = @h/@datamap.tileheight
     for l in @datamap.layers
-      if l.name == "collision"
-        @collisions.length = ntx*nty
-        
-        for c in [0...ntx]
-          for r in [0...nty]
-            tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] ) & 0x0FFFFFFF
-            @collisions[r * ntx + c] = tile != 0
-      else  
+      if l.name != "collision"
         for c in [0...ntx]
           for r in [0...nty]
             tile = (l.data[(r+map_y*nty) * @datamap.width + c+map_x*ntx] - 1) & 0x0FFFFFFF
@@ -184,38 +182,37 @@ class Tilemap extends Drawable
                            @datamap.tileheight)
             @ctx.restore()
   collision: (entity) ->
-    ntx = @w/@datamap.tilewidth
-    cmin = entity.x%%@w//@datamap.tilewidth
-    cmax = Math.ceil((entity.x%%@w + entity.w)/@datamap.tilewidth)
-    rmin = entity.y%%@h//@datamap.tileheight
-    rmax = Math.ceil((entity.y%%@h + entity.h)/@datamap.tileheight)
+    cmin = entity.x//@datamap.tilewidth
+    cmax = Math.ceil((entity.x + entity.w)/@datamap.tilewidth)
+    rmin = entity.y//@datamap.tileheight
+    rmax = Math.ceil((entity.y + entity.h)/@datamap.tileheight)
     
     collisions = []
 
     collision_top = false
     for c in [(cmin+1)...(cmax-1)]
-      collision_top = @collisions[rmin * ntx + c]
+      collision_top = @collisions[rmin * @datamap.width + c]
       if collision_top
         collisions[collisions.length] = "top"
         break
 
     collision_bot = false
     for c in [(cmin+1)...(cmax-1)]
-      collision_bot = @collisions[(rmax-1) * ntx + c]
+      collision_bot = @collisions[(rmax-1) * @datamap.width + c]
       if collision_bot
         collisions[collisions.length] = "bot"
         break
 
     collision_left = false
     for r in [(rmin+1)...(rmax-1)]
-      collision_left = @collisions[r * ntx + cmin]
+      collision_left = @collisions[r * @datamap.width + cmin]
       if collision_left
         collisions[collisions.length] = "left"
         break
 
     collision_right = false
     for r in [(rmin+1)...(rmax-1)]
-      collision_right = @collisions[r * ntx + cmax-1]
+      collision_right = @collisions[r * @datamap.width + cmax-1]
       if collision_right
         collisions[collisions.length] = "right"
         break
@@ -238,8 +235,6 @@ class AssetRepository
         loaded()
       
       pattern = ///\w+[.]\w+$///
-
-      console.log (@datamap.tilesets[0].image.match pattern)[0]
       
       @imagemap.src = "assets/#{(@datamap.tilesets[0].image.match pattern)[0]}"
     ).done(->
