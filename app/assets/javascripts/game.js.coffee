@@ -62,6 +62,7 @@ class Player extends Entity
   constructor: (x, y, w, h) ->
     super
     @controller = new Controller()
+    @collision_rect = new Rectangle(@x,@y,@w,@h)
     @tick = 0
   update: (tilemap) ->
     super
@@ -87,11 +88,17 @@ class Player extends Entity
 
     @x += @del_x
     @y += @del_y
-    
-    tilemap_collisions = tilemap.collision(this)
-    if "left" in tilemap_collisions || "right" in tilemap_collisions
+
+    @collision_rect.x = @x+@w/4
+    @collision_rect.y = @y+@h/2
+    @collision_rect.w = @w/2
+    @collision_rect.h = @h/3
+ 
+    tilemap_collisions = tilemap.collision(@collision_rect)
+    console.log tilemap_collisions
+    if "left" in tilemap_collisions && @del_x < 0 || "right" in tilemap_collisions && @del_x > 0
       @x -= @del_x
-    if "top" in tilemap_collisions || "bot" in tilemap_collisions
+    if "top" in tilemap_collisions && @del_y < 0 || "bot" in tilemap_collisions && @del_y > 0
       @y -= @del_y
 
     if @controller.x == 0 and @controller.y == 0
@@ -127,7 +134,11 @@ class Player extends Entity
         x_shift = 9*@w-x_shift 
         @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3) 
         @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      else    
+      else
+   
+    #@ctx.fillStyle = "#FF0000"
+
+    #@ctx.fillRect(0,0,@w,@h) 
 
 class Controller
   constructor: ->
@@ -181,11 +192,11 @@ class Tilemap extends Drawable
                            @datamap.tilewidth, 
                            @datamap.tileheight)
             @ctx.restore()
-  collision: (entity) ->
-    cmin = entity.x//@datamap.tilewidth
-    cmax = Math.ceil((entity.x + entity.w)/@datamap.tilewidth)
-    rmin = entity.y//@datamap.tileheight
-    rmax = Math.ceil((entity.y + entity.h)/@datamap.tileheight)
+  collision: (rect) ->
+    cmin = rect.x//@datamap.tilewidth
+    cmax = Math.ceil((rect.x + rect.w)/@datamap.tilewidth)
+    rmin = rect.y//@datamap.tileheight
+    rmax = Math.ceil((rect.y + rect.h)/@datamap.tileheight)
     
     collisions = []
 
