@@ -199,34 +199,14 @@ class Tilemap extends Drawable
     rmax = Math.ceil((rect.y + rect.h)/@datamap.tileheight)
     
     collisions = []
-
-    collision_top = false
-    for c in [(cmin+1)...(cmax-1)]
-      collision_top = @collisions[rmin * @datamap.width + c]
-      if collision_top
-        collisions[collisions.length] = "top"
-        break
-
-    collision_bot = false
-    for c in [(cmin+1)...(cmax-1)]
-      collision_bot = @collisions[(rmax-1) * @datamap.width + c]
-      if collision_bot
-        collisions[collisions.length] = "bot"
-        break
-
-    collision_left = false
-    for r in [(rmin+1)...(rmax-1)]
-      collision_left = @collisions[r * @datamap.width + cmin]
-      if collision_left
-        collisions[collisions.length] = "left"
-        break
-
-    collision_right = false
-    for r in [(rmin+1)...(rmax-1)]
-      collision_right = @collisions[r * @datamap.width + cmax-1]
-      if collision_right
-        collisions[collisions.length] = "right"
-        break
+    collisions[collisions.length] = "top" if @collisions[rmin * @datamap.width + cmin] and 
+                                             @collisions[rmin * @datamap.width + cmax] 
+    collisions[collisions.length] = "bot" if @collisions[(rmax-1) * @datamap.width + cmin] and
+                                             @collisions[(rmax-1) * @datamap.width + cmax]
+    collisions[collisions.length] = "left" if @collisions[rmin * @datamap.width + cmin] and
+                                              @collisions[rmax * @datamap.width + cmin]
+    collisions[collisions.length] = "right" if @collisions[rmin * @datamap.width + cmax-1] and
+                                               @collisions[rmax * @datamap.width + cmax-1]
     collisions
 
 class AssetRepository
