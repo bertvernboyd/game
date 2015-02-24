@@ -5,7 +5,7 @@ class Game
     imagemap = AssetRepository.imagemap
     datamap = AssetRepository.datamap
     @tilemap = new Tilemap(0, 0, tile_canvas.width, tile_canvas.height, imagemap, datamap)
-    @player = new Player(96,64, 32, 48)
+    @player = new Player(96, 64, 32, 48)
     @dirty_rects = []
     @dirty_rects[@dirty_rects.length] = @player.draw_rect
     @map_x = -1
@@ -116,6 +116,8 @@ class Player extends Entity
       @animation_state = "walk_left"
     else if @controller.y == 1
       @animation_state = "walk_down"
+    else if @controller.y == -1
+      @animation_state = "walk_up"
 
     switch @animation_state
       when "idle"
