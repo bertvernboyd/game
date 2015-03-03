@@ -3,6 +3,8 @@
 #= require game/entity.js.coffee
 #= require game/controller.js.coffee
 #= require game/tilemap.js.coffee
+#= require game/animator.js.coffee
+#= require game/player_animator.js.coffee
 
 class Game
   constructor: ->
@@ -45,20 +47,16 @@ class Player extends Entity
     @cx = @collision_rect.x + @collision_rect.w/2
     @cy = @collision_rect.y + @collision_rect.h/2
     @tick = 0
+    images = []
+    images[images.length] = AssetRepository.isaac_image
+    images[images.length] = AssetRepository.hero_image
+    @animator = new PlayerAnimator(images, @ctx)
+    
   update: (tilemap) ->
     # TODO reduce number of draw calls
-    # TODO make better animation logic
     
     @controller.update()
     
-    @tick++
-    @tick %= 80
-    if @tick < 0
-      @tick+=80
-    x_shift = Math.floor(@tick/8)*@w # getting animation frame
-    
-    @ctx.clearRect(0,0,@w,@h)
-
     s = 4
     if @controller.x != 0 and @controller.y != 0
       s = s / Math.sqrt(2)
@@ -99,29 +97,8 @@ class Player extends Entity
     else if @controller.y == -1
       @animation_state = "walk_up"
 
-    switch @animation_state
-      when "idle"
-        @tick = 0        
-        @ctx.drawImage(AssetRepository.isaac_image,0,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      when "walk_right"
-        @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      when "walk_left"
-        @ctx.save()
-        @ctx.translate(@w, 0)
-        @ctx.scale(-1,1)
-        @ctx.drawImage(AssetRepository.isaac_image,x_shift,2*@h/3,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-        @ctx.restore()
-      when "walk_down"
-        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      when "walk_up"
-        x_shift = 9*@w-x_shift 
-        @ctx.drawImage(AssetRepository.isaac_image,x_shift,0,@w,2*@h/3,0,@h/3,@w,2*@h/3)
-        @ctx.drawImage(AssetRepository.hero_image,0,0,@w,2*@h/3,0,0,@w,2*@h/3)
-      else
+    @animator.animate(@animation_state)
+
   draw: (canvas) ->
 
     @draw_rect.x = @x%%canvas.width
@@ -133,8 +110,6 @@ class Player extends Entity
       @draw_rect.y -= canvas.height
    
     super
-
-
 
 class AssetRepository
   @load: ->
