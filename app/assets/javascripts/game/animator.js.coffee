@@ -1,9 +1,7 @@
 class @Animator
-  constructor: (@images, @ctx) ->
+  constructor: (@images) ->
     @tick = 0
-    @w = @ctx.canvas.width
-    @h = @ctx.canvas.height
-  animate: (state) -> 
+  animate: (state, ctx) -> 
     throw Error "unimplemented method"
 
   
