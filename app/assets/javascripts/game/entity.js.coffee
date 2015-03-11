@@ -3,3 +3,4 @@ class @Entity extends Drawable
     super
   update: ->
     super
+    

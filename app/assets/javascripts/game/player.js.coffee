@@ -6,6 +6,8 @@ class @Player extends Entity
     @cx = @collision_rect.x + @collision_rect.w/2
     @cy = @collision_rect.y + @collision_rect.h/2
     @tear_pool = new TearPool()
+    @tts = 0
+    @f_s = 10
     
   update: (tilemap) ->
     # TODO reduce number of draw calls
@@ -41,8 +43,14 @@ class @Player extends Entity
     @cx = @collision_rect.x + @collision_rect.w/2
     @cy = @collision_rect.y + @collision_rect.h/2
 
-    @tear_pool.create_tear(@x+@w/4,@y+@y/8,10*@controller.f_x,0,60) if @controller.f_x != 0 
-    @tear_pool.create_tear(@x+@w/4,@y+@y/8,0,10*@controller.f_y,60) if @controller.f_y != 0 
+    @tts-- if @tts != 0
+    if @controller.f_x != 0 and @tts == 0
+      @tear_pool.create_tear(@x+@w/4,@y+@h/8,@f_s*@controller.f_x,0,60)
+      @tts = 20
+    if @controller.f_y != 0 and @tts == 0
+      @tear_pool.create_tear(@x+@w/4,@y+@h/8,0,@f_s*@controller.f_y,60)
+      @tts = 20
+
     @tear_pool.update()
 
     if @controller.x == 0 and @controller.y == 0
