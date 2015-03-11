@@ -1,8 +1,6 @@
 class @PlayerAnimator extends Animator
-  constructor: (images) ->
-    super
-  animate: (state, ctx) ->    
 
+  animate: (state, ctx) ->    
     w = ctx.canvas.width
     h = ctx.canvas.height
     ctx.clearRect(0,0,w,h)

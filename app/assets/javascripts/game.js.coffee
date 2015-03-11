@@ -27,6 +27,3 @@ $ ->
   AssetRepository.load()
   # Will call Game.init once all assets are loaded
 
-
-
-

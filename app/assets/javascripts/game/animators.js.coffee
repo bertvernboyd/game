@@ -6,3 +6,4 @@ class @Animators
       images[images.length] = AssetRepository.hero_image
       @player_animator = new PlayerAnimator(images)
     @player_animator
+
