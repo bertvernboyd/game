@@ -1,6 +1,6 @@
 class @AssetRepository
   @load: ->
-    numAssets = 4
+    numAssets = 5
     numLoaded = 0
 
     loaded = ->
@@ -30,4 +30,9 @@ class @AssetRepository
     @hero_image.onload = ->
       loaded()
     @hero_image.src = "assets/hero_32.png"
+
+    @tear_image = new Image()
+    @tear_image.onload = ->
+      loaded()
+    @tear_image.src = "assets/tear_16.png"
 

@@ -5,6 +5,7 @@ class @Player extends Entity
     @collision_rect = new Rectangle(@x+@w/4,@y+@h/2,@w/2,@h/3)
     @cx = @collision_rect.x + @collision_rect.w/2
     @cy = @collision_rect.y + @collision_rect.h/2
+    @tear_pool = new TearPool()
     
   update: (tilemap) ->
     # TODO reduce number of draw calls
@@ -40,6 +41,10 @@ class @Player extends Entity
     @cx = @collision_rect.x + @collision_rect.w/2
     @cy = @collision_rect.y + @collision_rect.h/2
 
+    @tear_pool.create_tear(@x+@w/4,@y+@y/8,10*@controller.f_x,0,60) if @controller.f_x != 0 
+    @tear_pool.create_tear(@x+@w/4,@y+@y/8,0,10*@controller.f_y,60) if @controller.f_y != 0 
+    @tear_pool.update()
+
     if @controller.x == 0 and @controller.y == 0
       animation_state = "idle"
     else if @controller.x == 1
@@ -54,6 +59,8 @@ class @Player extends Entity
     @animator.animate(animation_state,@ctx)
 
   draw: (canvas) ->
+
+    tear.draw(canvas) for tear in @tear_pool.alive_tears
 
     @draw_rect.x = @x%%canvas.width
     if @cx//canvas.width > @x//canvas.width

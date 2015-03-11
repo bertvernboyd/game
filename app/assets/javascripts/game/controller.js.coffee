@@ -11,6 +11,11 @@ class @Controller
     @x-- if KEY_STATUS.a
     @x++ if KEY_STATUS.d
 
+    @f_y-- if KEY_STATUS.up
+    @f_y++ if KEY_STATUS.down
+    @f_x-- if KEY_STATUS.left
+    @f_x++ if KEY_STATUS.right
+
 KEY_CODES =
   37: "left"
   38: "up"

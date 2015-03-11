@@ -8,6 +8,9 @@
 #= require game/player.js.coffee
 #= require game/player_animator.js.coffee
 #= require game/rectangle.js.coffee
+#= require game/tear.js.coffee
+#= require game/tear_animator.js.coffee
+#= require game/tear_pool.js.coffee
 #= require game/tilemap.js.coffee
 
 class @Game

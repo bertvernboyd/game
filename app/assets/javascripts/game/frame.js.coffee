@@ -13,7 +13,6 @@ class @Frame
     @map_x = -1
     @map_y = -1
 
-
   update: ->
     for dirty_rect in @dirty_rects
       entity_canvas.getContext('2d').clearRect(Math.floor(dirty_rect.x),
@@ -33,4 +32,8 @@ class @Frame
     @player.update(@tilemap)
 
     @player.draw(entity_canvas)
+    
     @dirty_rects[@dirty_rects.length] = @player.draw_rect
+    @dirty_rects[@dirty_rects.length] = tear.draw_rect for tear in @player.tear_pool.alive_tears
+
+
