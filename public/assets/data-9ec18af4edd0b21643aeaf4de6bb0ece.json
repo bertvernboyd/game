@@ -1,0 +1,39 @@
+{ "height":6,
+ "layers":[
+        {
+         "data":[1, 1, 1610612777, 41, 1, 1, 1, 1, 1610612776, 39, 1610612778, 42, 1610612776, 41, 1, 1, 2684354602, 3221225511, 3221225514, 10, 10, 42, 41, 1, 40, 3, 1610612775, 10, 10, 10, 2684354599, 1, 2684354599, 1, 3221225513, 3221225514, 14, 2684354602, 2684354601, 1, 40, 1, 1, 3221225513, 2684354600, 2684354601, 1, 1],
+         "height":6,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":8,
+         "x":0,
+         "y":0
+        }],
+ "orientation":"orthogonal",
+ "properties":
+    {
+
+    },
+ "tileheight":128,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "image":"..\/RoR\/game\/app\/assets\/images\/lost_garden_tileset.png",
+         "imageheight":1280,
+         "imagewidth":3200,
+         "margin":0,
+         "name":"Lost Garden",
+         "properties":
+            {
+
+            },
+         "spacing":0,
+         "tileheight":128,
+         "tilewidth":128
+        }],
+ "tilewidth":128,
+ "version":1,
+ "width":8
+}
