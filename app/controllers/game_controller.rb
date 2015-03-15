@@ -1,5 +1,5 @@
 class GameController < ApplicationController
-  skip_before_action :authorize, only: [:play]
+  skip_before_action :authorize, :only => [:intro]
 
   
   def play
