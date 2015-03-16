@@ -1,19 +1,19 @@
 Rails.application.routes.draw do
-  get 'game/play'
-  get 'game/intro'
+  get 'splash/intro'
+  #get 'game/play'
 
-  get 'game' => 'game#play'
-  get 'intro' => 'game#intro'
+  #get 'game' => 'game#play'
+  get 'intro' => 'splash#intro'
 
-  controller :sessions do
-    get 'login' => :new
-    post 'login' => :create
-    delete 'logout' => :destroy
-  end
+  #controller :sessions do
+  #  get 'login' => :new
+  #  post 'login' => :create
+  #  delete 'logout' => :destroy
+  #end
 
   resources :users
   
-  root :to => "game#intro"
+  root :to => "splash#intro"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
